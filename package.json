@@ -1,0 +1,33 @@
+{
+  "name": "korg-tr-knob-midi-extender",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/David-Vandensteen/korg-tr-knob-midi-extender.git"
+  },
+  "author": "David Vandensteen <dvandensteen@gmail.com>",
+  "license": "MIT",
+  "imports": {
+    "#src/*": "./src/*.js"
+  },
+  "bugs": {
+    "url": "https://github.com/David-Vandensteen/korg-tr-knob-midi-extender/issues"
+  },
+  "homepage": "https://github.com/David-Vandensteen/korg-tr-knob-midi-extender#readme",
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-import-resolver-alias": "^1.1.2",
+    "eslint-plugin-import": "^2.24.0"
+  },
+  "dependencies": {
+    "easymidi": "^2.1.0",
+    "inquirer": "^8.2.0"
+  }
+}
