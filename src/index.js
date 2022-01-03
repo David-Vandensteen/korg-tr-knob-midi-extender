@@ -1,8 +1,28 @@
-import easymidi from 'easymidi';
+import { getInputs, getOutputs } from 'easymidi';
+import midiRepeater from '#src/lib/midiRepeater';
 import SuperEasyMidi from '#src/lib/superEasyMidi';
 import menu from '#src/lib/menu';
-// import config from '#src/config/default-fr';
 
+const { log } = console;
+log('in', getInputs());
+log('out', getOutputs());
+
+midiRepeater
+  .register({ input: 0, output: 2 })
+  // .repeat()
+  /*
+  .on('message', ({ reply, message }) => {
+    log('receive : ', message);
+    reply(message);
+  })
+  */
+  // .repeat()
+  // .filter(144)
+  // .filter(80)
+  .repeat()
+  .apply();
+
+/*
 menu(easymidi.getOutputs())
   .then((response) => {
     console.log('response : ', response);
@@ -11,3 +31,4 @@ menu(easymidi.getOutputs())
       .register()
       .start();
   });
+  */
