@@ -8,18 +8,22 @@ log('in', getInputs());
 log('out', getOutputs());
 
 midiRepeater
-  .register({ input: 0, output: 2 })
-  // .repeat()
-  /*
-  .on('message', ({ reply, message }) => {
-    log('receive : ', message);
-    reply(message);
+  .register({
+    input: 0,
+    output: 2,
+    sysex: false,
+    clock: false,
+    activeSensing: false,
   })
-  */
-  // .repeat()
-  // .filter(144)
-  // .filter(80)
-  .repeat()
+  .on('midi-in', ({ reply, message }) => {
+    // if (message[0] === 0x80) reply([0x70, message[1], message[2]]);
+    // console.log(message);
+    // reply([0x70]);
+    console.log(message);
+    // reply(message);
+    // reply(message);
+    reply([0x8F, 48, 0]);
+  })
   .apply();
 
 /*

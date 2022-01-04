@@ -2,52 +2,64 @@ import { EventEmitter } from 'events';
 import midi from 'midi';
 
 class MidiRepeater extends EventEmitter {
-  register({ input, output }) {
+  register({
+    input,
+    output,
+    sysex = true,
+    clock = true,
+    activeSensing = true,
+  }) {
     this.input = new midi.Input(input);
     this.output = new midi.Output(output);
     this.input.openPort(input);
     this.output.openPort(output);
-    this.maxOperation = 0;
-    this.input.ignoreTypes(false, false, false);
+    this.input.ignoreTypes(!sysex, !clock, !activeSensing);
+    this.excludes = [];
+
+    console.log('in interface name :', this.input.getPortName(input));
+    console.log('out interface name :', this.output.getPortName(output));
+
+    this.on('midi-out', (message) => {
+      this.output.sendMessage(message);
+    });
+
+    this.input.on('message', (deltaTime, message) => {
+      this.emit('midi-in', { reply: this.send.bind(this), message });
+    });
     return this;
   }
 
-  repeat() {
-    this.on('midi-in', ({ reply, message }) => {
-      console.log('repeat receive');
-      reply(message);
-    });
+  exclude(type) {
+    this.excludes.push(type);
+    return this;
+  }
+
+  excludeClock() {
+    return this.exclude(0xF8);
+  }
+
+  excludeActiveSensing() {
+    return this.exclude(0xFE);
+  }
+
+  excludeSysex() {
+    return this.exclude(0xF0);
+  }
+
+  send(message) {
+    if (!this.excludes.find((type) => type === message[0])) {
+      this.emit('midi-out', message);
+    }
     return this;
   }
 
   apply() {
-    this.input.on('message', (deltaTime, message) => {
-      this.emit('midi-in', { reply: this.sendMessage.bind(this), message });
-      // The message is an array of numbers corresponding to the MIDI bytes:
-      //   [status, data1, data2]
-      // https://www.cs.cf.ac.uk/Dave/Multimedia/node158.html has some helpful
-      // information interpreting the messages.
-      console.log(`m: ${message} d: ${deltaTime}`);
-    });
-    console.log('listeners :', this.listenerCount('midi-in'));
-    this.maxOperation = this.listenerCount('midi-in');
-    return this;
-  }
-
-  filter(type) {
-    this.on('midi-in', ({ reply, message }) => {
-      console.log('filter receive:', type);
-      if (message[0] === type) reply(message);
-    });
-    return this;
-  }
-
-  sendMessage(message) {
-    this.maxOperation -= 1;
-    if (this.maxOperation <= 0) {
-      this.output.sendMessage(message);
-      this.maxOperation = this.listenerCount('midi-in');
+    if (this.listenerCount('midi-in') === 0) {
+      this.on('midi-in', ({ message }) => {
+        this.send(message);
+      });
     }
+    return this;
   }
 
   stop() {
