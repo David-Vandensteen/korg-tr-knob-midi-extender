@@ -1,4 +1,3 @@
-import { emitKeypressEvents } from 'readline';
 import { EventEmitter } from 'events';
 import midi from 'midi';
 
