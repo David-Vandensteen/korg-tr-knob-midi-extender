@@ -21,6 +21,8 @@ class KorgTrExt {
 
   start() {
     const { stdin } = process;
+    const defaultBankKey = config.defaultKey;
+
     emitKeypressEvents(process.stdin);
     process.stdin.setRawMode(true);
 
@@ -28,9 +30,13 @@ class KorgTrExt {
       if (keypressing.ctrl && keypressing.name === 'c') this.midi.stop();
       else {
         log(keypressing);
-        const { keys, knobsCC } = config;
-        const key = keys.find((k) => k.name === keypressing.sequence);
-        this.midi.replaceCC({ map: knobsCC, remap: key.knobsMap });
+        if (defaultBankKey === keypressing.name) {
+          this.midi.replaceCCreset();
+        } else {
+          const { keys, knobsCC } = config;
+          const key = keys.find((k) => k.name === keypressing.name);
+          this.midi.replaceCC({ map: knobsCC, remap: key.knobsMap });
+        }
       }
     });
     return this;
