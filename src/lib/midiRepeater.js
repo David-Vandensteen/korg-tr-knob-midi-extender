@@ -71,6 +71,11 @@ class MidiRepeater extends EventEmitter {
     return this;
   }
 
+  replaceCCreset() {
+    this.ccsMapIn = undefined;
+    this.ccsMapOut = undefined;
+  }
+
   start() {
     this.on('midi-in', ({ message }) => {
       this.send(message);
@@ -80,8 +85,9 @@ class MidiRepeater extends EventEmitter {
 
   stop() {
     this.removeAllListeners();
-    this.input.close();
-    this.output.close();
+    this.input.closePort();
+    this.output.closePort();
+    process.exit();
   }
 }
 
