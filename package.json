@@ -5,7 +5,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/index.js --list",
+    "lint": "eslint src",
+    "package": "caxa --input . --output dist/korg-tr-extender.exe -- {{caxa}}/node_modules/.bin/node.exe {{caxa}}/src/index.js"
   },
   "repository": {
     "type": "git",
@@ -27,8 +29,10 @@
     "eslint-plugin-import": "^2.24.0"
   },
   "dependencies": {
+    "app-root-path": "^3.0.0",
+    "arg": "^5.0.1",
     "easymidi": "^2.1.0",
-    "inquirer": "^8.2.0",
+    "fs-extra": "^10.0.1",
     "midi": "^2.0.0"
   }
 }

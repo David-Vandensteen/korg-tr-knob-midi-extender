@@ -1,38 +1,62 @@
+import fs from 'fs-extra';
+import appRootPath from 'app-root-path';
 import { getInputs, getOutputs } from 'easymidi';
-import midiRepeater from '#src/lib/midiRepeater';
-import SuperEasyMidi from '#src/lib/superEasyMidi';
-import menu from '#src/lib/menu';
+import Params from '#src/lib/params';
+import korgTrExt from '#src/lib/korgTrExt';
 
+const { readJSONSync } = fs;
+const { resolve } = appRootPath;
 const { log } = console;
-log('in', getInputs());
-log('out', getOutputs());
+const { exit } = process;
 
-midiRepeater
-  .register({
-    input: 0,
-    output: 2,
-    sysex: false,
-    clock: false,
-    activeSensing: false,
-  })
-  .on('midi-in', ({ reply, message }) => {
-    // if (message[0] === 0x80) reply([0x70, message[1], message[2]]);
-    // console.log(message);
-    // reply([0x70]);
-    console.log(message);
-    // reply(message);
-    // reply(message);
-    reply([0x8F, 48, 0]);
-  })
-  .apply();
+const params = new Params();
 
-/*
-menu(easymidi.getOutputs())
-  .then((response) => {
-    console.log('response : ', response);
-    const midi = new SuperEasyMidi(response.portName);
-    midi
-      .register()
-      .start();
+if (params.help) Params.help();
+
+if (params.version) {
+  const { version } = readJSONSync(resolve('./package.json'));
+  log(version);
+  exit(0);
+}
+
+if (params.list) {
+  const availableInput = getInputs();
+  const availableOutput = getOutputs();
+
+  const displayInput = [];
+  const displayOutput = [];
+
+  let id = -1;
+  availableInput.map((int) => {
+    id += 1;
+    return displayInput.push(`${id} ${int}`);
   });
-  */
+
+  id = -1;
+
+  availableOutput.map((int) => {
+    id += 1;
+    return displayOutput.push(`${id} ${int}`);
+  });
+
+  log('Midi input :');
+  log(displayInput.join('\n'));
+  log('');
+  log('Midi output :');
+  log(displayOutput.join('\n'));
+  log('');
+
+  exit(0);
+}
+
+if (
+  params.in === undefined
+  || params.out === undefined
+) Params.help();
+
+korgTrExt
+  .register({
+    input: params.in,
+    output: params.out,
+  })
+  .start();

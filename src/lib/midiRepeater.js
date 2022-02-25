@@ -1,5 +1,8 @@
+import { emitKeypressEvents } from 'readline';
 import { EventEmitter } from 'events';
 import midi from 'midi';
+
+const { log } = console;
 
 class MidiRepeater extends EventEmitter {
   register({
@@ -8,7 +11,9 @@ class MidiRepeater extends EventEmitter {
     sysex = true,
     clock = true,
     activeSensing = true,
+    config,
   }) {
+    this.config = config;
     this.input = new midi.Input(input);
     this.output = new midi.Output(output);
     this.input.openPort(input);
@@ -16,8 +21,8 @@ class MidiRepeater extends EventEmitter {
     this.input.ignoreTypes(!sysex, !clock, !activeSensing);
     this.excludes = [];
 
-    console.log('in interface name :', this.input.getPortName(input));
-    console.log('out interface name :', this.output.getPortName(output));
+    log('in interface name :', this.input.getPortName(input));
+    log('out interface name :', this.output.getPortName(output));
 
     this.on('midi-out', (message) => {
       this.output.sendMessage(message);
@@ -48,17 +53,29 @@ class MidiRepeater extends EventEmitter {
 
   send(message) {
     if (!this.excludes.find((type) => type === message[0])) {
-      this.emit('midi-out', message);
+      const modifiedMessage = message;
+      if (this.ccsMapIn && this.ccsMapOut) {
+        this.ccsMapIn.map((cc, index) => {
+          if (cc === message[1]) modifiedMessage[1] = this.ccsMapOut[index];
+          return index;
+        });
+      }
+      log('send :', modifiedMessage);
+      this.emit('midi-out', modifiedMessage);
     }
     return this;
   }
 
-  apply() {
-    if (this.listenerCount('midi-in') === 0) {
-      this.on('midi-in', ({ message }) => {
-        this.send(message);
-      });
-    }
+  replaceCC({ map, remap }) {
+    this.ccsMapIn = map;
+    this.ccsMapOut = remap;
+    return this;
+  }
+
+  start() {
+    this.on('midi-in', ({ message }) => {
+      this.send(message);
+    });
     return this;
   }
 
