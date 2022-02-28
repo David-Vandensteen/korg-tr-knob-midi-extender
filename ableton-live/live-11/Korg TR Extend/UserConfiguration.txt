@@ -7,7 +7,7 @@
 # the range of 0-15.
 GlobalChannel: 0
 InputName: LoopBe Internal MIDI
-OutputName: LoopBe Internal MIDI
+#OutputName:
 # ======================================================
 # Control Settings Information
 # ======================================================

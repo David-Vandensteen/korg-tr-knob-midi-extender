@@ -13,6 +13,9 @@ class KorgTrExt {
       .register({
         input,
         output,
+        clock: false,
+        sysex: false,
+        activeSensing: false,
         config,
       })
       .start();

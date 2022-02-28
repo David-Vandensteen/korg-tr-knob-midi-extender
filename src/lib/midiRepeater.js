@@ -2,6 +2,7 @@ import { EventEmitter } from 'events';
 import midi from 'midi';
 
 const { log } = console;
+const TYPE_CC = 176;
 
 class MidiRepeater extends EventEmitter {
   register({
@@ -52,15 +53,15 @@ class MidiRepeater extends EventEmitter {
 
   send(message) {
     if (!this.excludes.find((type) => type === message[0])) {
-      const modifiedMessage = message;
-      if (this.ccsMapIn && this.ccsMapOut) {
+      const translatedMessage = message;
+      if (this.ccsMapIn && this.ccsMapOut && message[0] === TYPE_CC) {
         this.ccsMapIn.map((cc, index) => {
-          if (cc === message[1]) modifiedMessage[1] = this.ccsMapOut[index];
+          if (cc === message[1]) translatedMessage[1] = this.ccsMapOut[index];
           return index;
         });
       }
-      log('send :', modifiedMessage);
-      this.emit('midi-out', modifiedMessage);
+      log('send :', translatedMessage);
+      this.emit('midi-out', translatedMessage);
     }
     return this;
   }
