@@ -37,8 +37,11 @@ class KorgTrExt {
           this.midi.replaceCCreset();
         } else {
           const { keys, knobsCC } = config;
-          const key = keys.find((k) => k.name === keypressing.name);
-          this.midi.replaceCC({ map: knobsCC, remap: key.knobsMap });
+          const key = keys.find(
+            (k) => k.name === keypressing.name || k.name === keypressing.sequence,
+          );
+          log(key);
+          if (key) this.midi.replaceCC({ map: knobsCC, remap: key.knobsMap });
         }
       }
     });

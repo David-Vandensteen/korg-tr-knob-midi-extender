@@ -5,6 +5,10 @@ export default {
   ],
   keys: [
     {
+      name: '&',
+      midiCC: '',
+    },
+    {
       name: 'f1',
       knobsMap: [
         3, 9, 14, 15, 22, 23, 24, 25,
